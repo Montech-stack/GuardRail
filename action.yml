@@ -1,4 +1,4 @@
-name: 'GuardRail AI'
+name: 'GuardRail - Next.js Security Scanner'
 description: 'AI-powered security scanner for Next.js applications. Finds vulnerabilities in your PRs and suggests fixes.'
 author: 'Michael James (montech-stack)'
 
