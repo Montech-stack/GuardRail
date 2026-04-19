@@ -1,0 +1,55 @@
+import type { ScanRule } from '../types';
+
+export const exposureRules: ScanRule[] = [
+  {
+    id: 'server-env-in-client-component',
+    name: 'Server-Only Env Var in Client Component',
+    severity: 'high',
+    description: 'Accessing non-NEXT_PUBLIC_ env vars in a client component exposes server secrets',
+    pattern: /process\.env\.(?!NEXT_PUBLIC_)[A-Z_]+/g,
+    message: 'Server-only environment variable used in client-side code. Only NEXT_PUBLIC_ prefixed variables are safe to use in client components.',
+    filePattern: /\.(tsx|jsx)$/,
+  },
+  {
+    id: 'console-log-sensitive',
+    name: 'console.log of Potentially Sensitive Data',
+    severity: 'medium',
+    description: 'Logging sensitive data (passwords, tokens, keys) to console exposes it in logs',
+    pattern: /console\.(?:log|info|warn|error)\s*\([^)]*(?:password|token|secret|key|auth|credential)[^)]*\)/gi,
+    message: 'Sensitive data may be logged to console. Remove or redact sensitive fields before logging.',
+  },
+  {
+    id: 'error-stack-exposed',
+    name: 'Full Error Stack Exposed to Client',
+    severity: 'medium',
+    description: 'Returning error.stack or full error details to clients leaks implementation details',
+    pattern: /(?:res\.json|NextResponse\.json)\s*\(\s*\{[^}]*(?:stack|error\.message|err\.message)[^}]*\}/g,
+    message: 'Full error details or stack trace sent to client. Return generic error messages to users and log details server-side only.',
+  },
+  {
+    id: 'debug-endpoint',
+    name: 'Debug/Test Endpoint in Production Code',
+    severity: 'medium',
+    description: 'Debug endpoints expose internal application state',
+    pattern: /(?:\/debug|\/test|\/admin\/dump|\/env|\/config)\s*['"]/gi,
+    message: 'Potential debug or test endpoint found. Ensure these routes are disabled or protected in production.',
+    filePattern: /\.(ts|js)$/,
+  },
+  {
+    id: 'sensitive-data-in-response',
+    name: 'Sensitive Fields Returned in API Response',
+    severity: 'high',
+    description: 'Returning password hashes or raw sensitive fields in API responses',
+    pattern: /(?:res\.json|NextResponse\.json)\s*\(\s*(?:user|account|profile)(?:\s*\)|\s*,)/g,
+    message: 'Full user/account object may be returned. Explicitly select safe fields to return — exclude password, token, and secret fields.',
+    filePattern: /\.(ts|js)$/,
+  },
+  {
+    id: 'verbose-error-messages',
+    name: 'Verbose Database/System Error Forwarded to Client',
+    severity: 'medium',
+    description: 'Forwarding raw database or system errors reveals internal structure',
+    pattern: /catch\s*\([^)]*\)\s*\{[^}]*(?:res\.json|NextResponse\.json)\s*\(\s*\{[^}]*(?:error|err|message)\s*:\s*(?:error|err)(?:\.message)?\s*[^}]*\}/gims,
+    message: 'Raw error forwarded to client response. Catch errors server-side, log the details, and return a safe generic message.',
+  },
+];

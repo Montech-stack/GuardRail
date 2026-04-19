@@ -1,0 +1,36 @@
+name: 'GuardRail AI'
+description: 'AI-powered security scanner for Next.js applications. Finds vulnerabilities in your PRs and suggests fixes.'
+author: 'Michael James (montech-stack)'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  gemini-api-key:
+    description: 'Google Gemini API key for AI-powered analysis'
+    required: true
+  github-token:
+    description: 'GitHub token for reading PR files and posting comments'
+    required: false
+    default: ${{ github.token }}
+  severity-threshold:
+    description: 'Minimum severity level to report. Options: critical, high, medium, low'
+    required: false
+    default: 'low'
+  fail-on-severity:
+    description: 'Fail the workflow if issues at this severity or above are found. Options: critical, high, medium, low, never'
+    required: false
+    default: 'critical'
+
+outputs:
+  issues-found:
+    description: 'Total number of security issues found'
+  critical-count:
+    description: 'Number of critical severity issues'
+  high-count:
+    description: 'Number of high severity issues'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,28 @@
+name: GuardRail AI Security Scan
+
+# ── Copy this file into YOUR project's .github/workflows/ folder ──────────────
+# Then add GEMINI_API_KEY to your repository secrets.
+# Get a free API key at: https://aistudio.google.com/apikey
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  guardrail:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write   # needed to post PR comments
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run GuardRail AI
+        uses: montech-stack/guardrail@v1
+        with:
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          # Optional settings:
+          severity-threshold: 'low'       # Report issues at this level and above
+          fail-on-severity: 'critical'    # Fail the check for critical issues

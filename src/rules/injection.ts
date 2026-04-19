@@ -1,0 +1,55 @@
+import type { ScanRule } from '../types';
+
+export const injectionRules: ScanRule[] = [
+  {
+    id: 'raw-sql-template-literal',
+    name: 'Raw SQL with Template Literal (SQL Injection)',
+    severity: 'critical',
+    description: 'Raw SQL query built with template literals can enable SQL injection',
+    pattern: /(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\s+.*\$\{/gi,
+    message: 'Raw SQL query with dynamic values detected. Use parameterized queries or a query builder like Prisma/Drizzle.',
+  },
+  {
+    id: 'raw-sql-concatenation',
+    name: 'Raw SQL with String Concatenation (SQL Injection)',
+    severity: 'critical',
+    description: 'SQL query built by concatenating strings is vulnerable to SQL injection',
+    pattern: /(?:query|sql|execute)\s*\(\s*['"`](?:SELECT|INSERT|UPDATE|DELETE).*\+\s*/gi,
+    message: 'SQL query with string concatenation found. Use parameterized queries to prevent SQL injection.',
+  },
+  {
+    id: 'child-process-exec',
+    name: 'child_process.exec with Dynamic Input (Command Injection)',
+    severity: 'critical',
+    description: 'Using exec() with dynamic input enables command injection',
+    pattern: /(?:exec|execSync|spawn|spawnSync)\s*\(\s*[`'"]\s*.*\$\{/g,
+    message: 'Command execution with dynamic input found. Use execFile() with argument arrays instead of exec() with string interpolation.',
+    filePattern: /\.(ts|js)$/,
+  },
+  {
+    id: 'nosql-injection',
+    name: 'Potential NoSQL Injection',
+    severity: 'high',
+    description: 'Directly passing request body to MongoDB/Mongoose queries can enable NoSQL injection',
+    pattern: /\.find(?:One)?\s*\(\s*req\.(?:body|query|params)/g,
+    message: 'Request data passed directly to database query. Validate and sanitize all user input before querying.',
+  },
+  {
+    id: 'path-traversal',
+    name: 'Path Traversal Vulnerability',
+    severity: 'high',
+    description: 'Using user-controlled input in file paths can enable directory traversal attacks',
+    pattern: /(?:readFile|writeFile|readFileSync|writeFileSync|createReadStream|createWriteStream)\s*\(\s*(?:req\.|params\.|query\.)/g,
+    message: 'User-controlled input used in file path. Sanitize paths using path.normalize() and validate against an allowlist.',
+    filePattern: /\.(ts|js)$/,
+  },
+  {
+    id: 'ssrf-user-controlled-fetch',
+    name: 'SSRF — User-Controlled URL in fetch()',
+    severity: 'high',
+    description: 'Fetching a URL derived from user input can enable Server-Side Request Forgery',
+    pattern: /fetch\s*\(\s*(?:req\.|params\.|query\.|body\.)/g,
+    message: 'User-controlled URL in fetch(). Validate URLs against an allowlist to prevent SSRF attacks.',
+    filePattern: /\.(ts|js)$/,
+  },
+];

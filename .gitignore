@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.js.map
+licenses.txt
+.env
+.env.local
